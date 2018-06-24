@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="br.com.fabappu9.ecoloc.InfoEnderecoActivity">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="Confirme asinformações sobre esse ponto"
+        android:textAlignment="center"
+        android:textSize="21sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+    <EditText
+        android:id="@+id/edtNomePonto"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_edit_text"
+        android:ellipsize="start"
+        android:gravity="center"
+        android:hint="Nome"
+        app:layout_constraintEnd_toEndOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <EditText
+        android:id="@+id/editTxtEndereco"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:background="@drawable/rounded_edit_text"
+        android:ellipsize="start"
+        android:gravity="center"
+        android:hint="Endereço"
+        app:layout_constraintEnd_toEndOf="@+id/edtNomePonto"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/edtNomePonto"
+        app:layout_constraintTop_toBottomOf="@+id/edtNomePonto" />
+
+    <TextView
+        android:id="@+id/txtQtdLikes"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1"
+        android:background="@drawable/rounded_edit_text"
+        android:ellipsize="start"
+        android:gravity="center"
+        android:text="Likes:"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/edtNomePonto"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/edtNomePonto"
+        app:layout_constraintTop_toBottomOf="@+id/editTxtEndereco" />
+
+
+    <Button
+        android:id="@+id/btnConfirmar"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="0"
+        android:background="@drawable/login_button"
+        android:text="Confirmar"
+        android:textColor="#FFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnRemoverPonto" />
+
+
+    <Button
+        android:id="@+id/btnRemoverPonto"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="0"
+        android:background="@drawable/logou_button"
+        android:text="remover"
+        android:textColor="#FFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnConfirmar"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnLike"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:background="@null"
+        app:layout_constraintStart_toStartOf="@+id/txtQtdLikes"
+        app:layout_constraintTop_toBottomOf="@+id/txtQtdLikes"
+        app:srcCompat="@drawable/ic_like" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Like"
+        app:layout_constraintEnd_toEndOf="@+id/btnLike"
+        app:layout_constraintStart_toStartOf="@+id/btnLike"
+        app:layout_constraintTop_toBottomOf="@+id/btnLike" />
+
+    <ImageButton
+        android:id="@+id/btnDislike"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="32dp"
+        android:background="@null"
+        android:rotation="180"
+        app:layout_constraintEnd_toEndOf="@+id/txtQtdLikes"
+        app:layout_constraintTop_toBottomOf="@+id/txtQtdLikes"
+        app:srcCompat="@drawable/ic_like" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Dislike"
+        app:layout_constraintEnd_toEndOf="@+id/btnDislike"
+        app:layout_constraintStart_toStartOf="@+id/btnDislike"
+        app:layout_constraintTop_toBottomOf="@+id/btnDislike" />
+
+</android.support.constraint.ConstraintLayout>

@@ -28,6 +28,8 @@ import retrofit2.http.Query;
 
 public class APIClient {
 
+    public static final String WEBSERVICE_JAN = "http://janjrs.000webhostapp.com/ws_app/v1/";
+    public static final String WEBSERVICE_PIZZARIA = "http://www.labellaguty.com.br/v1/";
     private static Retrofit REST_ADAPTER;
 
     public APIClient(){
@@ -43,7 +45,7 @@ public class APIClient {
             OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
             REST_ADAPTER = new Retrofit
                     .Builder()
-                    .baseUrl("http://janjrs.000webhostapp.com/ws_app/v1/")
+                    .baseUrl(WEBSERVICE_JAN)
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(client)
                     .build();
@@ -100,5 +102,30 @@ public class APIClient {
                 @Query("CHAMADA") String chamada,
                 @Query("PARAM") String param
         );
+        @GET("ponto.php")
+        Call<Resposta> realizaLikeOuDislike(
+                @Query("CHAVE") String chave,
+                @Query("CHAMADA") String chamada,
+                @Query("LIKE") String param,
+                @Query("IDPONTO") String id
+        );
+
+        @GET("ponto.php")
+        Call<RespostaPonto> alteraPonto(
+                @Query("CHAVE") String chave,
+                @Query("CHAMADA") String chamada,
+                @Query("DESCRICAO") String descricao,
+                @Query("LATITUDE") String latitude,
+                @Query("LONGITUDE") String longitude,
+                @Query("IDPONTO") String idPonto
+        );
+
+        @GET("ponto.php")
+        Call<Resposta> removePonto(
+                @Query("CHAVE") String chave,
+                @Query("CHAMADA") String chamada,
+                @Query("IDPONTO") String idPonto
+        );
+
     }
 }

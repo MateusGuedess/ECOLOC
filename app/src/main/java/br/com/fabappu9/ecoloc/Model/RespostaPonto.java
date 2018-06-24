@@ -5,6 +5,7 @@ package br.com.fabappu9.ecoloc.Model;
  */
 
 public class RespostaPonto {
+
     private String RETORNO;
     private String CODIGO;
 

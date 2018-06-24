@@ -55,14 +55,14 @@
         android:ellipsize="start"
         android:gravity="center"
         android:hint="Endereço"
-        app:layout_constraintBottom_toTopOf="@+id/btnCadastrarPonto"
+        app:layout_constraintBottom_toTopOf="@+id/btnConfirmar"
         app:layout_constraintEnd_toStartOf="@+id/guideline7"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edtNomePonto" />
 
     <Button
-        android:id="@+id/btnCadastrarPonto"
+        android:id="@+id/btnConfirmar"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:layout_gravity="center"

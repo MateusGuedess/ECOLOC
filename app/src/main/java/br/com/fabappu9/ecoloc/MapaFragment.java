@@ -12,11 +12,9 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -24,7 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -45,6 +43,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
+import static br.com.fabappu9.ecoloc.interfaces.Constantes.CHAVE_PONTO_RECUPERADO;
+import static br.com.fabappu9.ecoloc.interfaces.Constantes.TAG_CODE_PERMISSION_LOCATION;
+import static br.com.fabappu9.ecoloc.interfaces.Constantes.TAG_NOVO_PONTO_CADASTRADO;
 
 /**
  * Created by Geraldo on 06/06/2017.
@@ -53,8 +54,6 @@ import static android.app.Activity.RESULT_OK;
 
 public class MapaFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener{
 
-    private static final int TAG_CODE_PERMISSION_LOCATION = 1;
-    private static final int TAG_NOVO_PONTO_CADASTRADO = 2;
 
     private RetainedFragment mapWorkFragment;
     private MapView mMapView;
@@ -196,6 +195,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
                 if (clickCount.equals(cadastrarEstePonto)) {
                     addPonto(marker.getPosition());
+                } else{
+                    abrirDetalhesPonto(marker);
                 }
             }
         });
@@ -234,12 +235,24 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         startActivityForResult(intent, TAG_NOVO_PONTO_CADASTRADO);
     }
 
+    private void abrirDetalhesPonto(Marker marker) {
+        String[] tituloParams = marker.getTitle().split("-");
+        String idDoPonto = tituloParams[0];
+        PontoDto ponto = RetainedFragment.pontos.get(Integer.parseInt(idDoPonto));
+
+        Intent intent = new Intent(getActivity(), DetalhesEcoPontoActivity.class);
+        intent.putExtra(CHAVE_PONTO_RECUPERADO, ponto);
+
+        startActivityForResult(intent, TAG_NOVO_PONTO_CADASTRADO);
+
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode ==  TAG_NOVO_PONTO_CADASTRADO && resultCode == RESULT_OK){
-            mMarker =null;
+            mMarker = null;
             mGoogleMap.clear();
             mapWorkFragment.iniCallback(mGoogleMap);
         }else{
@@ -265,19 +278,17 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         return new LatLng(latitude,longitude);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         return false;
     }
 
 
-
-
-//--------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------
     public static class RetainedFragment extends Fragment {
         protected CameraPosition cameraGoogle = null;
-        private List<PontoDto> pontos =null;
+        public static List<PontoDto> pontos = null;
         Call<List<PontoDto>> retorno = null;
 
 
@@ -313,8 +324,18 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         private void configurarCallbackParaCarregarOsPontos(GoogleMap mGoogleMap) {
             if (pontos != null) {
                 for (int i = 0; i < pontos.size(); i++) {
-                    mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(pontos.get(i).getLatitude()), Double.parseDouble(pontos.get(i).getLongitude())))
-                            .title(pontos.get(i).getDescricao()).snippet(pontos.get(i).getTipoMaterial()));
+                    PontoDto dto = pontos.get(i);
+
+                    String tituloPonto = i + "-" + dto.getDescricao();
+                    LatLng posicaoPonto = new LatLng(Double.parseDouble(dto.getLatitude()), Double.parseDouble(dto.getLongitude()));
+                    String tipoMaterialPonto = dto.getTipoMaterial();
+
+                    MarkerOptions marcador = new MarkerOptions();
+                    marcador.position(posicaoPonto);
+                    marcador.title(tituloPonto);
+                    marcador.snippet(tipoMaterialPonto);
+
+                    mGoogleMap.addMarker(marcador);
                 }
             }else
                 iniCallback(mGoogleMap);

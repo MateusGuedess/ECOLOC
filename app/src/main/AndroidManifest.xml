@@ -26,8 +26,10 @@
         android:roundIcon="@mipmap/ecoloc"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SplashActivity"
+        <activity
+            android:name=".SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,13 +37,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".CadastradoActivity"
-            android:label="Cadastrar"
-            android:parentActivityName=".LoginActivity" />
+            android:label="Cadastrar Usuário"
+            android:parentActivityName=".LoginActivity"
+            android:screenOrientation="portrait" />
 
-        <!-- Maps KEY -->
+        <activity
+            android:name=".DetalhesEcoPontoActivity"
+            android:label="Detalhes do EcoPonto"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".InfoEnderecoActivity"
+            android:label="Cadastro de EcoPonto"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".LoginActivity"
+            />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyC9iV62h0a9pKjUnHg2Fksin4C3a_YpDgs" />
@@ -56,12 +74,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Maps -->
-        <activity
-            android:name=".InfoEnderecoActivity"
-            android:label="Cadastrar Ponto"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".LoginActivity" />
+
     </application>
 
 </manifest>

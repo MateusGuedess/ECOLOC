@@ -45,7 +45,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        dialog = new SpotsDialog(this);
+        setTitle("EcoLoc");
+        dialog = new SpotsDialog(this, R.style.estilo_carregando);
         Permissoes permissoes = new Permissoes();
         permissoes.setMyPermissionsRequestAccessFineLocation(LoginActivity.this);
         cadastrar  = (Button) findViewById(R.id.CadastrarButton);
@@ -130,7 +131,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void getPontos(String id){
-
         retornoPonto = new APIClient().getRestService().getRankingDTO("12345", "GETRANKING",id);
         retornoPonto.enqueue(new Callback<List<RankingDto>>() {
             @Override

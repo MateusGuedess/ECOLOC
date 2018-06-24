@@ -6,8 +6,8 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -15,7 +15,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,13 +33,13 @@ import br.com.fabappu9.ecoloc.network.APIClient;
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
-//import retrofit2.RetrofitError;
 import retrofit2.Response;
 
 import static br.com.fabappu9.ecoloc.FotoFragment.TAG_FOTO_FRAGMENT;
 
 
 public class CadastradoActivity extends AppCompatActivity {
+
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int RESULT_LOAD_IMAGE = 2;
     static final int RESULT_HABILIT_CAM = 3;
@@ -50,7 +49,7 @@ public class CadastradoActivity extends AppCompatActivity {
     private TextView txtNome;
     private TextView txtUsuario;
     private TextView txtSenha, txtConfirmarSenha;
-    private Button btnCadastrar , btnAddFoto;
+    private Button btnCadastrar, btnAddFoto;
     private CircleImageView imageFoto;
     private Callback<Resposta> respostaCallback;
     String photoPath;
@@ -81,36 +80,32 @@ public class CadastradoActivity extends AppCompatActivity {
         btnCadastrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String nome =txtNome.getText().toString();
-                String usuario =txtUsuario.getText().toString();
-                String senha =txtSenha.getText().toString();
-                String confirmar =txtConfirmarSenha.getText().toString();
+                String nome = txtNome.getText().toString();
+                String usuario = txtUsuario.getText().toString();
+                String senha = txtSenha.getText().toString();
+                String confirmar = txtConfirmarSenha.getText().toString();
                 Call<Resposta> retorno = null;
                 if (nome.equals("") || usuario.equals("") ||
-                        senha.equals("") || confirmar.equals("")){
+                        senha.equals("") || confirmar.equals("")) {
                     Toast.makeText(CadastradoActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
                     if (senha.equals(confirmar)) {
                         retorno = new APIClient().getRestService().setUsuarioDTO("12345", "CRIARUSUARIODTO",
                                 nome,
                                 usuario,
                                 senha,
-                                fotoLogin.getFotoBase64());
+                                //fotoLogin.getFotoBase64());
+                                "");
                         configurarCallback(retorno);
-                        Intent intent = new Intent(CadastradoActivity.this,LoginActivity.class);
-                        startActivity(intent);
-                        finish();
 
                     } else {
                         Toast.makeText(CadastradoActivity.this, "Essas senhas não coicidem", Toast.LENGTH_SHORT).show();
-                        txtSenha.setText("");
-                        txtConfirmarSenha.setText("");
                     }
                 }
             }
         });
 
-        buttonAddFoto();
+        //buttonAddFoto();
     }
 
 
@@ -120,11 +115,11 @@ public class CadastradoActivity extends AppCompatActivity {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             fotoLogin.setFoto(photoPath);
 
-        }else if(requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null){
+        } else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
             assert selectedImage != null;
-            Cursor cursor = getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
             assert cursor != null;
             cursor.moveToFirst();
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
@@ -155,6 +150,7 @@ public class CadastradoActivity extends AppCompatActivity {
             }
         }
     }
+
     private File createImageFile() throws IOException {
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -167,7 +163,6 @@ public class CadastradoActivity extends AppCompatActivity {
         photoPath = image.getAbsolutePath();
         return image;
     }
-
 
     // tela mensagem para editar a foto "btn"
     public void buttonAddFoto() {
@@ -192,7 +187,7 @@ public class CadastradoActivity extends AppCompatActivity {
                 });
                 // btn remover foto
                 Button btnRemover = (Button) view.findViewById(R.id.btn_remover_foto);
-                if(!fotoLogin.isFotoAdd())
+                if (!fotoLogin.isFotoAdd())
                     btnRemover.setVisibility(View.GONE);
                 btnRemover.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -228,26 +223,18 @@ public class CadastradoActivity extends AppCompatActivity {
             startActivityForResult(Intent.createChooser(intent, "Selecione uma imagem"), RESULT_LOAD_IMAGE);
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     RESULT_HABILIT_CAM);
         }
     }
 
 
     private void configurarCallback(Call<Resposta> resposta) {
-        resposta.enqueue( new Callback<Resposta>() {
+        resposta.enqueue(new Callback<Resposta>() {
             @Override
             public void onResponse(@NonNull Call<Resposta> call, @NonNull Response<Resposta> response) {
-                if (!response.isSuccessful()){
-                    Log.e("ERRO:",response.message());
-                }else{
-                    Resposta res = response.body();
-                    if (res.getRETORNO().equals("SUCESSO")){
-                        Toast.makeText(CadastradoActivity.this, "Cadastrado com Sucesso!", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(CadastradoActivity.this, res.getRETORNO() +" ,não cadastrado" , Toast.LENGTH_SHORT).show();
-                    }
-                }
+                Toast.makeText(CadastradoActivity.this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+                finish();
             }
 
             @Override

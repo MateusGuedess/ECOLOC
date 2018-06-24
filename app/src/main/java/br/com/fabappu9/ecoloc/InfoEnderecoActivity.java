@@ -12,10 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -25,7 +22,9 @@ import java.util.Objects;
 
 import br.com.fabappu9.ecoloc.DTO.MaterialDto;
 import br.com.fabappu9.ecoloc.Model.RespostaPonto;
+import br.com.fabappu9.ecoloc.adapter.TiposMaterialAdapter;
 import br.com.fabappu9.ecoloc.network.APIClient;
+import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,92 +35,102 @@ public class InfoEnderecoActivity extends AppCompatActivity {
     EditText endereco;
     ListView listTipoMaterial;
     EditText nome;
-    Double latitude,longitude;
-    private SharedPreferences sharedPreferences;
+    Double latitude, longitude;
     private Button btnCadastrarPonto;
-    private List<MaterialDto> materiais =null;
-    private Call<List<MaterialDto>> retorno = null;
+    private SpotsDialog dialog;
+    private List<MaterialDto> materiais = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_endereco);
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        iniciarComponentesTela();
 
-        Intent intent = getIntent();
-
-        if (intent != null){
-            Bundle params = intent.getExtras();
-            if(params != null){
-                String enderecoSaida =  params.getString("Endereco");
-                latitude = params.getDouble("Latitude");
-                longitude = params.getDouble("Longitude");
-
-                endereco  = (EditText) findViewById(R.id.editTxtEndereco);
-                endereco.setText(enderecoSaida);
-
-                Log.d(TAG, "onCreate: " + enderecoSaida);
-
-            }
-        }
-        btnCadastrarPonto = (Button) findViewById(R.id.btnCadastrarPonto);
-        iniCallback();
-
-        nome = (EditText) findViewById(R.id.edtNomePonto);
+        carregarParametrosRecebidos();
 
         btnCadastrarPonto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Call<RespostaPonto> resposta;
-
-                if (getCheckedItemCount() == 0 || nome.getText().toString().equals("")){
-                    Toast.makeText(InfoEnderecoActivity.this, "Preencha todos os campos ", Toast.LENGTH_SHORT).show();
-                }else {
-                    sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
-                    String id = sharedPreferences.getString("id", "8");
-                    resposta = new APIClient().getRestService().setPontoDTO("12345",
-                            "CRIARPONTO",
-                            nome.getText().toString(),
-                            getIdsTems(),
-                            latitude.toString(),
-                            longitude.toString(),
-                            id
-                    );
-                    configurarCallback(resposta);
-                }
+                cadastrarPontoNovo();
             }
         });
     }
 
-    private int getCheckedItemCount(){
-        int count=0;
-        for (MaterialDto m: materiais)
-            count += m.isMarcado()? 1:0;
+    private void cadastrarPontoNovo() {
+        boolean existeCamposFaltandoPreenchimento = getCheckedItemCount() == 0 || nome.getText().toString().equals("");
+        if (existeCamposFaltandoPreenchimento) {
+            Toast.makeText(InfoEnderecoActivity.this, "Preencha todos os campos ", Toast.LENGTH_SHORT).show();
+        } else {
+            dispararAPIcadastroPontoNovo();
+        }
+    }
+
+    private void dispararAPIcadastroPontoNovo() {
+        Call<RespostaPonto> resposta;
+        dialog.show();
+        SharedPreferences sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
+        String id = sharedPreferences.getString("id", "8");
+        resposta = new APIClient().getRestService().setPontoDTO("12345",
+                "CRIARPONTO",
+                nome.getText().toString(),
+                getIdsTems(),
+                latitude.toString(),
+                longitude.toString(),
+                id
+        );
+        configurarCallbackEnviaPonto(resposta);
+    }
+
+    private void iniciarComponentesTela() {
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        dialog = new SpotsDialog(this, R.style.estilo_carregando);
+        nome = (EditText) findViewById(R.id.edtNomePonto);
+        endereco = (EditText) findViewById(R.id.editTxtEndereco);
+        listTipoMaterial = (ListView) findViewById(R.id.list_checkBox);
+        btnCadastrarPonto = (Button) findViewById(R.id.btnConfirmar);
+
+        configurarCallbackListaMateriais();
+    }
+
+    private void carregarParametrosRecebidos() {
+        Intent intent = getIntent();
+        if (intent != null) {
+            Bundle params = intent.getExtras();
+            if (params != null) {
+                String enderecoSaida = params.getString("Endereco");
+                latitude = params.getDouble("Latitude");
+                longitude = params.getDouble("Longitude");
+                endereco.setText(enderecoSaida);
+            }
+        }
+    }
+
+    private int getCheckedItemCount() {
+        int count = 0;
+        for (MaterialDto m : materiais)
+            count += m.isMarcado() ? 1 : 0;
         return count;
     }
 
-    private String getIdsTems(){
-        char separador =',';
-        StringBuilder ids= new StringBuilder();
-        for (MaterialDto m: materiais) {
-            if(m.isMarcado())
+    private String getIdsTems() {
+        char separador = ',';
+        StringBuilder ids = new StringBuilder();
+        for (MaterialDto m : materiais) {
+            if (m.isMarcado())
                 ids.append(m.getId()).append(separador);
         }
         return ids.toString();
     }
 
-    private void initTipoMaterial(List<MaterialDto> materiais){
-        listTipoMaterial = (ListView) findViewById(R.id.list_checkBox);
-        MaterialAdapter adapter = new MaterialAdapter(this,
-                R.layout.list_item_checkbox, materiais);
-        listTipoMaterial.setAdapter(adapter);
+    private void initTipoMaterial(List<MaterialDto> materiais) {
+        listTipoMaterial.setAdapter(new TiposMaterialAdapter(this,  R.layout.list_item_checkbox, materiais));
     }
 
 
-    // -----recebe lista dos materiais-----
-    private void iniCallback(){
-        retorno = new APIClient().getRestService().getMaterialDTO("12345", "GETTIPOMATERIAL", "");
+
+    private void configurarCallbackListaMateriais() {
+        Call<List<MaterialDto>> retorno = new APIClient().getRestService().getMaterialDTO("12345", "GETTIPOMATERIAL", "");
         retorno.enqueue(new Callback<List<MaterialDto>>() {
             @Override
             public void onResponse(@NonNull Call<List<MaterialDto>> call, @NonNull Response<List<MaterialDto>> response) {
@@ -132,6 +141,7 @@ public class InfoEnderecoActivity extends AppCompatActivity {
                     initTipoMaterial(materiais);
                 }
             }
+
             @Override
             public void onFailure(@NonNull Call<List<MaterialDto>> call, @NonNull Throwable error) {
                 Toast.makeText(InfoEnderecoActivity.this, "Erro: " + error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -139,23 +149,25 @@ public class InfoEnderecoActivity extends AppCompatActivity {
         });
     }
 
-
-    // ------ envia ponto cadastrado ------
-    private void configurarCallback(Call<RespostaPonto> resposta) {
+    
+    private void configurarCallbackEnviaPonto(Call<RespostaPonto> resposta) {
         resposta.enqueue(new Callback<RespostaPonto>() {
             @Override
             public void onResponse(@NonNull Call<RespostaPonto> call, @NonNull Response<RespostaPonto> response) {
+                dialog.hide();
                 setResult(RESULT_OK);
-                agradecimento();
+                mostrarMensagemAgradecimento();
             }
 
             @Override
             public void onFailure(@NonNull Call<RespostaPonto> call, @NonNull Throwable error) {
+                dialog.hide();
                 Toast.makeText(InfoEnderecoActivity.this, "Algum erro aconteceu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
         });
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         setResult(RESULT_CANCELED);
@@ -164,8 +176,7 @@ public class InfoEnderecoActivity extends AppCompatActivity {
     }
 
 
-
-    private void agradecimento(){
+    private void mostrarMensagemAgradecimento() {
         LayoutInflater li = getLayoutInflater();
         @SuppressLint("InflateParams") View view = li.inflate(R.layout.alert_agradecimento, null);
         // btn ok
@@ -179,46 +190,5 @@ public class InfoEnderecoActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-
-
-
-//================================ cria a lista dos materiais ========================================
-    class MaterialAdapter extends ArrayAdapter<MaterialDto>{
-        private int resource;
-
-        public MaterialAdapter(Context context , int resource , List<MaterialDto> objects) {
-            super(context ,resource,objects);
-            this.resource = resource;
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position , View convertView , @NonNull ViewGroup parent) {
-            View row = convertView;
-
-            if (row == null) {
-                LayoutInflater inflater = (LayoutInflater) getContext()
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                assert inflater != null;
-                row = inflater.inflate(this.resource , parent , false);
-            }
-
-            String text = Objects.requireNonNull(getItem(position)).getDescricao();
-
-            CheckBox checkBox = (CheckBox) row.findViewById(R.id.checkBox);
-            checkBox.setText(text);
-            checkBox.setTag(getItem(position));
-
-            //-------
-            checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    MaterialDto p = (MaterialDto) v.getTag();
-                    p.setMarcado(((CheckBox) v).isChecked());
-                }
-            });
-            return row;
-        }
-
-    }
 }
+
