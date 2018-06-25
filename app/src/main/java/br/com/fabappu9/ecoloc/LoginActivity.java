@@ -40,7 +40,6 @@ public class LoginActivity extends AppCompatActivity {
     String ponto;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

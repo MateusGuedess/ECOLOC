@@ -38,12 +38,15 @@ import java.util.List;
 
 import br.com.fabappu9.ecoloc.DTO.PontoDto;
 import br.com.fabappu9.ecoloc.network.APIClient;
+import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
+import static br.com.fabappu9.ecoloc.MapaFragment.RetainedFragment.pontos;
 import static br.com.fabappu9.ecoloc.interfaces.Constantes.CHAVE_PONTO_RECUPERADO;
+import static br.com.fabappu9.ecoloc.interfaces.Constantes.TAG_ALTERAR_PONTO_CADASTRADO;
 import static br.com.fabappu9.ecoloc.interfaces.Constantes.TAG_CODE_PERMISSION_LOCATION;
 import static br.com.fabappu9.ecoloc.interfaces.Constantes.TAG_NOVO_PONTO_CADASTRADO;
 
@@ -103,7 +106,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         LayoutInflater inflater = getActivity().getLayoutInflater();
-
 
         mostraMensagemComInformacoesNoPrimeiroLogin(inflater);
 
@@ -238,12 +240,12 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     private void abrirDetalhesPonto(Marker marker) {
         String[] tituloParams = marker.getTitle().split("-");
         String idDoPonto = tituloParams[0];
-        PontoDto ponto = RetainedFragment.pontos.get(Integer.parseInt(idDoPonto));
+        PontoDto ponto = pontos.get(Integer.parseInt(idDoPonto));
 
         Intent intent = new Intent(getActivity(), DetalhesEcoPontoActivity.class);
         intent.putExtra(CHAVE_PONTO_RECUPERADO, ponto);
 
-        startActivityForResult(intent, TAG_NOVO_PONTO_CADASTRADO);
+        startActivityForResult(intent, TAG_ALTERAR_PONTO_CADASTRADO);
 
     }
 
@@ -251,13 +253,15 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if(requestCode ==  TAG_NOVO_PONTO_CADASTRADO && resultCode == RESULT_OK){
             mMarker = null;
             mGoogleMap.clear();
             mapWorkFragment.iniCallback(mGoogleMap);
         }else{
-            mMarker =null;
+            mMarker = null;
         }
+
     }
 
     private void centralizarCamera(GoogleMap googleMap) {
@@ -280,9 +284,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
-        return false;
-    }
+    public boolean onMarkerClick(Marker marker) {  return false; }
 
 
     //--------------------------------------------------------------------------------------------------
@@ -336,6 +338,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                     marcador.snippet(tipoMaterialPonto);
 
                     mGoogleMap.addMarker(marcador);
+
                 }
             }else
                 iniCallback(mGoogleMap);

@@ -31,6 +31,7 @@ import java.util.Objects;
 import br.com.fabappu9.ecoloc.Model.Resposta;
 import br.com.fabappu9.ecoloc.network.APIClient;
 import de.hdodenhof.circleimageview.CircleImageView;
+import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -52,6 +53,7 @@ public class CadastradoActivity extends AppCompatActivity {
     private Button btnCadastrar, btnAddFoto;
     private CircleImageView imageFoto;
     private Callback<Resposta> respostaCallback;
+    private SpotsDialog dialog;
     String photoPath;
 
     @Override
@@ -59,6 +61,7 @@ public class CadastradoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastrado);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        dialog = new SpotsDialog(this,R.style.estilo_carregando);
 
         FragmentManager fm = getFragmentManager();
         fotoLogin = (FotoFragment) fm.findFragmentByTag(TAG_FOTO_FRAGMENT);
@@ -80,6 +83,7 @@ public class CadastradoActivity extends AppCompatActivity {
         btnCadastrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.show();
                 String nome = txtNome.getText().toString();
                 String usuario = txtUsuario.getText().toString();
                 String senha = txtSenha.getText().toString();
@@ -233,12 +237,14 @@ public class CadastradoActivity extends AppCompatActivity {
         resposta.enqueue(new Callback<Resposta>() {
             @Override
             public void onResponse(@NonNull Call<Resposta> call, @NonNull Response<Resposta> response) {
+                dialog.hide();
                 Toast.makeText(CadastradoActivity.this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
                 finish();
             }
 
             @Override
             public void onFailure(@NonNull Call<Resposta> call, @NonNull Throwable error) {
+                dialog.hide();
                 Toast.makeText(CadastradoActivity.this, "Algum erro aconteceu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

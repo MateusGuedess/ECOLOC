@@ -111,12 +111,13 @@ public class APIClient {
         );
 
         @GET("ponto.php")
-        Call<RespostaPonto> alteraPonto(
+        Call<Resposta> alteraPonto(
                 @Query("CHAVE") String chave,
                 @Query("CHAMADA") String chamada,
                 @Query("DESCRICAO") String descricao,
                 @Query("LATITUDE") String latitude,
                 @Query("LONGITUDE") String longitude,
+                @Query("IDUSUARIODTO") String idUusario,
                 @Query("IDPONTO") String idPonto
         );
 

@@ -1,6 +1,7 @@
 package br.com.fabappu9.ecoloc;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,7 +40,7 @@ public class DetalhesEcoPontoActivity extends AppCompatActivity {
     private SpotsDialog dialog;
 
     private Call<Resposta> retorno;
-    private Call<RespostaPonto> resposta;
+    private Call<Resposta> resposta;
     private Call<Resposta> retornoPontoRemovido;
 
 
@@ -116,10 +117,11 @@ public class DetalhesEcoPontoActivity extends AppCompatActivity {
         dialog.show();
         resposta = new APIClient().getRestService().alteraPonto(
                 "12345",
-                "CRIARPONTO",
+                "UPDATEPONTO",
                 pontoRecuperado.getDescricao(),
                 pontoRecuperado.getLatitude(),
                 pontoRecuperado.getLongitude(),
+                "8",
                 pontoRecuperado.getId()
         );
         configurarCallbackAlteraPonto(resposta);
@@ -209,17 +211,17 @@ public class DetalhesEcoPontoActivity extends AppCompatActivity {
         });
     }
 
-    private void configurarCallbackAlteraPonto(Call<RespostaPonto> resposta) {
-        resposta.enqueue(new Callback<RespostaPonto>() {
+    private void configurarCallbackAlteraPonto(Call<Resposta> resposta) {
+        resposta.enqueue(new Callback<Resposta>() {
             @Override
-            public void onResponse(Call<RespostaPonto> call, Response<RespostaPonto> response) {
+            public void onResponse(Call<Resposta> call, Response<Resposta> response) {
                 dialog.hide();
                 setResult(RESULT_OK);
                 mostrarMensagemAgradecimento();
             }
 
             @Override
-            public void onFailure(Call<RespostaPonto> call, Throwable t) {
+            public void onFailure(Call<Resposta> call, Throwable t) {
                 dialog.hide();
                 Toast.makeText(DetalhesEcoPontoActivity.this, "Algum erro aconteceu: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 setResult(RESULT_OK);
@@ -234,7 +236,9 @@ public class DetalhesEcoPontoActivity extends AppCompatActivity {
             public void onResponse(Call<Resposta> call, Response<Resposta> response) {
                 dialog.hide();
                 Toast.makeText(DetalhesEcoPontoActivity.this, "Ponto removido", Toast.LENGTH_SHORT).show();
-                setResult(RESULT_OK);
+                Intent intent = new Intent();
+                intent.putExtra("pontoRemover", pontoRecuperado);
+                setResult(RESULT_OK, intent);
                 finish();
             }
 

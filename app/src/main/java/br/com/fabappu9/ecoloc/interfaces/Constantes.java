@@ -6,4 +6,5 @@ public interface Constantes {
 
     int TAG_CODE_PERMISSION_LOCATION = 1;
     int TAG_NOVO_PONTO_CADASTRADO = 2;
+    int TAG_ALTERAR_PONTO_CADASTRADO = 3;
 }
