@@ -277,7 +277,15 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     }
 
     private void centralizarCamera(GoogleMap googleMap) {
-        LatLng coordenada = buscarLocalizacaoDoUsuario(mView.getContext());
+        //LatLng coordenada = buscarLocalizacaoDoUsuario(mView.getContext()); FICOU NA MÃO, PERDAO PELO VACILO
+
+
+
+        double lat_paulista = -23.559650;
+        double long_paulista = -46.657941;
+
+        LatLng coordenada = new LatLng(lat_paulista, long_paulista);
+
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(coordenada, 15);
         googleMap.moveCamera(update);
     }
