@@ -135,7 +135,6 @@ public class InfoEnderecoActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<List<MaterialDto>> call, @NonNull Response<List<MaterialDto>> response) {
                 if (!response.isSuccessful()) {
-                    Log.e("ERRO:", response.message());
                 } else {
                     materiais = response.body();
                     initTipoMaterial(materiais);

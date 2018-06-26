@@ -66,7 +66,6 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<RespostaLogin> call, Response<RespostaLogin> response) {
                 if (!response.isSuccessful()){
-                    Log.e("ERRO:",response.message());
                 }else{
                     RespostaLogin login = response.body();
                     if (login.getRETORNO().equals("SUCESSO")){

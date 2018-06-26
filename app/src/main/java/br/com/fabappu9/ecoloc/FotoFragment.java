@@ -75,8 +75,6 @@ public class FotoFragment extends Fragment {
         imagBtnPhoto.compress(Bitmap.CompressFormat.JPEG,100,baos);
         byte[] b = baos.toByteArray();
 
-        // Log.d(TAG,"!! Base64EnCode !! \n "+encodeImage);
-
         return Base64.encodeToString(b,Base64.DEFAULT);
 
     }
@@ -84,7 +82,6 @@ public class FotoFragment extends Fragment {
     private Bitmap Base64DeCode(String base64dStr, Context context){
         Toast.makeText(context,"do Base64DeCode ",Toast.LENGTH_SHORT).show();
         byte[] decodedBytes = Base64.decode(base64dStr,Base64.DEFAULT);
-        Log.d(TAG,"!! Base64DeCode !!  "+decodedBytes.length);
         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes,0,decodedBytes.length);
         Toast.makeText(context," Base64DeCode DONE",Toast.LENGTH_SHORT).show();
         return bitmap;

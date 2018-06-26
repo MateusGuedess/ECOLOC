@@ -24,6 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -85,27 +88,8 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_mapa, container, false);
-        return mView;
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // --- cria fragment para salvar os pontos e camera ---
-        FragmentManager fm = getFragmentManager();
-        mapWorkFragment = (RetainedFragment)fm.findFragmentByTag("work");
-
-        if (mapWorkFragment == null) {
-            mapWorkFragment = new RetainedFragment();
-            mapWorkFragment.setTargetFragment(this, 0);
-            fm.beginTransaction().add(mapWorkFragment, "work").commit();
-        }
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        //LayoutInflater inflater = getActivity().getLayoutInflater();
 
         mostraMensagemComInformacoesNoPrimeiroLogin(inflater);
 
@@ -115,7 +99,20 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             mMapView.onResume();
             mMapView.getMapAsync(this);
         }
+
+        // --- cria fragment para salvar os pontos e camera ---
+        FragmentManager fm = getFragmentManager();
+        mapWorkFragment = (RetainedFragment)fm.findFragmentByTag("work");
+
+        if (mapWorkFragment == null) {
+            mapWorkFragment = new RetainedFragment();
+            mapWorkFragment.setTargetFragment(this, 0);
+            fm.beginTransaction().add(mapWorkFragment, "work").commit();
+        }
+
+        return mView;
     }
+
 
     @Override
     public void onResume() {
@@ -150,7 +147,6 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
                     .setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             Boolean conferindo = sharedPrefEditor.putBoolean("jaLogouAntes", true).commit();
-                            Log.d(TAG, "onClick: "+ conferindo);
                         }
                     });
             builder.show();
@@ -209,11 +205,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
                 if (mMarker != null) {
                     mMarker.remove();
-                    Log.d(TAG, "onMapClick: [" + latLng.latitude + "/" + latLng.longitude + "]");
                     cadastrarSnippet = Localizador.encontrarEndereco(getActivity(), latLng.latitude, latLng.longitude);
                     mMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latLng.latitude, latLng.longitude)).title(cadastrarEstePonto).snippet(cadastrarSnippet));
                 } else {
-                    Log.d(TAG, "onMapClick: [" + latLng.latitude + "/" + latLng.longitude + "]");
                     cadastrarSnippet = Localizador.encontrarEndereco(getActivity(), latLng.latitude, latLng.longitude);
                     mMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latLng.latitude, latLng.longitude)).title(cadastrarEstePonto).snippet(cadastrarSnippet));
                     addPonto(latLng);
@@ -254,6 +248,23 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if(resultCode == RESULT_OK){
+            switch (requestCode){
+                case TAG_NOVO_PONTO_CADASTRADO:
+                    mMarker = null;
+                    mGoogleMap.clear();
+                    mapWorkFragment.iniCallback(mGoogleMap);
+                    break;
+                case TAG_ALTERAR_PONTO_CADASTRADO:
+                    mMarker = null;
+                    mGoogleMap.clear();
+                    mapWorkFragment.iniCallback(mGoogleMap);
+                    break;
+            }
+        }
+
+
+        /*
         if(requestCode ==  TAG_NOVO_PONTO_CADASTRADO && resultCode == RESULT_OK){
             mMarker = null;
             mGoogleMap.clear();
@@ -261,6 +272,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
         }else{
             mMarker = null;
         }
+        */
 
     }
 
@@ -272,6 +284,7 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
 
     @SuppressLint("MissingPermission")
     private LatLng buscarLocalizacaoDoUsuario(Context context){
+
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
 
@@ -308,22 +321,19 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback, Google
             retorno.enqueue(new Callback<List<PontoDto>>() {
                 @Override
                 public void onResponse(@NonNull Call<List<PontoDto>> call, @NonNull Response<List<PontoDto>> response) {
-                    if (!response.isSuccessful()) {
-                        Log.e("ERRO:", response.message());
-                    } else {
-                        pontos = response.body();
-                        configurarCallbackParaCarregarOsPontos(mGoogleMap);
-                    }
+                    pontos = response.body();
+                    configurarCallbackParaCarregarOsPontos(mGoogleMap);
                 }
                 @Override
                 public void onFailure(@NonNull Call<List<PontoDto>> call, @NonNull Throwable error) {
-                    Log.e("ERRO:", error.getMessage());
                 }
             });
         }
 
 
         private void configurarCallbackParaCarregarOsPontos(GoogleMap mGoogleMap) {
+            mGoogleMap.clear();
+
             if (pontos != null) {
                 for (int i = 0; i < pontos.size(); i++) {
                     PontoDto dto = pontos.get(i);
